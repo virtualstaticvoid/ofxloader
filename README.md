@@ -1,6 +1,6 @@
 # OFX Loader
 
-Simple utility to read a bunch of [OFX files][ofx] and output a single CSV file with the transations in tabular form.
+Simple utility to read a bunch of [OFX files][ofx] and output a single CSV file with the transactions in tabular form.
 
 ## Pre-requisites
 
@@ -39,6 +39,18 @@ dotnet OFXLoader.dll
 The program will find each OFX file in the `ofx` directory and create a single CSV file in the `csv` directory, and load the unique set of transaction data into it. Duplicate transactions will be ignored.
 
 Open the resultant CSV file in your favourite spreadsheet program to see the transactions in tabular form.
+
+## Output Format
+
+The following table shows an example of the tabular content produced.
+
+| Date | Description | Amount | FitNum | CheckNum |
+|------|-------------|--------|--------|----------|
+| YYYY-MM-DD | Transaction Ref 1 |  10.99 | 98765 | 56473 |
+| YYYY-MM-DD | Transaction Ref 2 |  11.99 | 98766 | 56474 |
+| YYYY-MM-DD | Transaction Ref 3 |  12.99 | 98767 | 56475 |
+| YYYY-MM-DD | Transaction Ref 4 |  13.99 | 98768 | 56476 |
+| ... | ... |  ... | ... | ... |
 
 ## License
 

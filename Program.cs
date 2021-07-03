@@ -29,9 +29,9 @@ namespace OFXLoader
       //   - csvfileN.csv
       //
 
-      var assemblyFileName = new FileInfo(Assembly.GetEntryAssembly().Location);
-      var ofxPath = Path.Combine(assemblyFileName.Directory.FullName, "ofx");
-      var csvPath = Path.Combine(assemblyFileName.Directory.FullName, "csv");
+      var baseDirectory = Directory.GetCurrentDirectory();
+      var ofxPath = Path.Combine(baseDirectory, "ofx");
+      var csvPath = Path.Combine(baseDirectory, "csv");
 
       var transform = new XslCompiledTransform();
 

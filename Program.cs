@@ -42,7 +42,7 @@ namespace OFXLoader
       }
 
       // create CSV output file
-      using (var ext = new Ext(Path.Combine(csvPath, String.Format("output_{0:yyyyMMdd}.csv", DateTime.Today))))
+      using (var ext = new XsltExt(Path.Combine(csvPath, $"output_{DateTime.Today:yyyyMMdd}.csv")))
       {
 
         var args = new XsltArgumentList();
@@ -65,7 +65,7 @@ namespace OFXLoader
 
               // some OFX file has non-XML content at the top of the file
               // ignore lines until line starting with "<OFX>"
-              // then load the content as XML
+              // then load the remaining content as XML
 
               var inContent = false;
               var line = stream.ReadLine();
@@ -93,23 +93,31 @@ namespace OFXLoader
   }
 
   // XSLT extension
-  class Ext : IDisposable
+  class XsltExt : IDisposable
   {
     private StreamWriter _writer;
+    private readonly Dictionary<String, Boolean> _duplicateCheck;
 
-    private Dictionary<String, Boolean> _duplicateCheck;
-
-    public Ext(string fileName)
+    public XsltExt(string fileName)
     {
       _writer = File.CreateText(fileName);
-      _writer.WriteLine("Account,Type,Date,Description,Amount,FitNum,CheckNum");
+      _writer.WriteLine("BankId,Account,Type,Date,Description,Currency,Amount,FitNum,CheckNum");
       _duplicateCheck = new Dictionary<string, bool>();
     }
 
-    public void SaveTransaction(string account, string tranType, string date, string description, string transactionAmount, string fitId, string checkNum)
+    public void SaveTransaction(
+      string bankId,
+      string account,
+      string tranType,
+      string date,
+      string description,
+      string currency,
+      string transactionAmount,
+      string fitId,
+      string checkNum)
     {
-      // combine fitID and amount to make a unique key
-      var key = String.Format("{0}:{1}", fitId, transactionAmount);
+      // combine account, fitID and amount to make a unique key
+      var key = $"{account}:{fitId}:{transactionAmount}";
 
       // duplicate entry?
       if (_duplicateCheck.ContainsKey(key))
@@ -118,13 +126,13 @@ namespace OFXLoader
         return;
       }
 
-      var dateparts = new string[3];
+      var dateParts = new string[3];
 
-      dateparts[0] = date.Substring(0, 4); // year
-      dateparts[1] = date.Substring(4, 2); // month
-      dateparts[2] = date.Substring(6, 2); // day
+      dateParts[0] = date.Substring(0, 4); // year
+      dateParts[1] = date.Substring(4, 2); // month
+      dateParts[2] = date.Substring(6, 2); // day
 
-      _writer.WriteLine("{0},\"{1}\",{2:yyyy-MM-dd},\"{3}\",{4}, {5}, {6}", account, tranType, DateTime.Parse(String.Join("-", dateparts)), description, transactionAmount, fitId, checkNum);
+      _writer.WriteLine("{0},{1},\"{2}\",{3:yyyy-MM-dd},\"{4}\",{5},{6},{7},{8}", bankId, account, tranType, DateTime.Parse(string.Join("-", dateParts)), description, currency, transactionAmount, fitId, checkNum);
 
       _duplicateCheck.Add(key, true);
     }
